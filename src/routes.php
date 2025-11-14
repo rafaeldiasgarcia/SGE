@@ -210,4 +210,4 @@ Router::post('/superadmin/solicitacao-troca-curso/recusar', 'SuperAdminControlle
 
 // API de Notificações - Polling em tempo real
 Router::get('/notifications', 'NotificationController@getNotifications');      // Lista notificações (JSON)
-Router::post('/notifications/read', 'NotificationController@markAsRead');      // Marcar como lida (JSON)
+Router::post('/notifications/read', 'NotificationController@markAsRead');      // Marcar como lida (JSON) 

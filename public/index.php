@@ -159,4 +159,4 @@ try {
         echo "<p>Ocorreu um erro inesperado. Detalhes:</p>";
         echo "<pre>" . htmlspecialchars($e->getMessage()) . "</pre>";
     }
-}
+} 

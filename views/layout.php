@@ -97,4 +97,4 @@ use Application\Core\Auth;
     </script>
     <?php endif; ?>
 </body>
-</html>
+</html> 

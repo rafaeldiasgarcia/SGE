@@ -82,4 +82,4 @@ O cenário ilustrado abaixo é a **aprovação de um agendamento por um Super Ad
 6.  **Envio de Notificação:** O `SuperAdminController` então chama o `NotificationService`, acionando o método `notifyAgendamentoAprovado(id)`.
 7.  **Criação da Notificação:** O `NotificationService` executa um comando `INSERT` na tabela `notificacoes` para registrar o aviso para o usuário solicitante.
 8.  **Retorno Final:** Após todas as operações serem concluídas com sucesso, o `SuperAdminController` envia uma resposta `HTTP 200 OK` de volta ao `Browser`.
-9.  **Feedback Visual:** O `Browser` recebe a resposta e exibe uma mensagem de sucesso para o Super Admin.
+9.  **Feedback Visual:** O `Browser` recebe a resposta e exibe uma mensagem de sucesso para o Super Admin. 

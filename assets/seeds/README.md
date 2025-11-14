@@ -67,4 +67,4 @@ Para compatibilidade, o enum `tipo_usuario_detalhado` usa:
 - Email: `aluno@sge.com`
 - Senha: `sadmin`
 
-*Veja mais credenciais no README.md principal*
+*Veja mais credenciais no README.md principal* 
