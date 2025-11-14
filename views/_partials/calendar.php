@@ -150,42 +150,42 @@ function hasInsufficientAdvance($ymd, $isCampeonato = false) {
 <!-- ========================================================================
      CABEÇALHO DO CALENDÁRIO
      ======================================================================== -->
-<h5 class="mb-3 text-primary border-bottom pb-2">
+<h5 class="mb-3 text-primary border-bottom pb-2 calendar-title">
     <i class="bi bi-calendar-check"></i> Selecione a Data e o Período
-    <span id="regra-antecedencia">(4 dias a 1 mês de antecedência)</span>
-    <span id="regra-campeonato" style="display: none;" class="text-success">
+    <span id="regra-antecedencia" class="d-block d-sm-inline calendar-subtitle">(4 dias a 1 mês de antecedência)</span>
+    <span id="regra-campeonato" class="text-success d-block d-sm-inline calendar-subtitle-campeonato">
         <i class="bi bi-trophy"></i> Campeonatos: sem restrições de data!
     </span>
 </h5>
 
 <!-- Legenda de cores do calendário -->
-<div class="d-flex align-items-center gap-3 small mb-2">
-    <span><span class="badge bg-success me-1">&nbsp;</span> Livre</span>
-    <span><span class="badge bg-warning text-dark me-1">&nbsp;</span> Um período ocupado</span>
-    <span><span class="badge bg-danger me-1">&nbsp;</span> Dois periodos Indisponiveis</span>
-    <span><span class="badge bg-light border text-dark me-1">&nbsp;</span> Horário indisponível</span>
+<div class="d-flex flex-wrap align-items-center gap-2 gap-md-3 small mb-3 calendar-legend">
+    <span><span class="badge bg-success me-1 legend-badge">&nbsp;</span> Ambos livres</span>
+    <span><span class="badge bg-warning text-dark me-1 legend-badge">&nbsp;</span> Um ocupado</span>
+    <span><span class="badge bg-danger me-1 legend-badge">&nbsp;</span> Ambos ocupados</span>
+    <span><span class="badge bg-light border text-dark me-1 legend-badge">&nbsp;</span> Data inválida</span>
 </div>
 
 <!-- ========================================================================
      CONTAINER PRINCIPAL DO CALENDÁRIO
      Este div é o alvo das atualizações AJAX ao navegar entre meses
      ======================================================================== -->
-<div id="cal" class="border rounded-3 p-3 mb-4">
-    
+<div id="cal" class="border rounded-3 p-2 mb-4 bg-white shadow-sm">
+
     <!-- Navegação de mês (anterior/próximo) -->
     <div class="d-flex justify-content-between align-items-center mb-2">
-        <button type="button" class="btn btn-sm btn-outline-secondary nav-cal" data-mes="<?= $prevMes; ?>">
+        <button type="button" class="btn btn-sm btn-outline-primary nav-cal" data-mes="<?= $prevMes; ?>">
             <i class="bi bi-chevron-left"></i>
         </button>
 
         <!-- Exibição do mês e ano atual -->
-        <div class="fw-semibold">
+        <div class="fw-bold text-center calendar-month-year">
             <?php
             // Array de nomes de meses em português
             $meses = [
-                1 => 'janeiro', 2 => 'fevereiro', 3 => 'março', 4 => 'abril',
-                5 => 'maio', 6 => 'junho', 7 => 'julho', 8 => 'agosto',
-                9 => 'setembro', 10 => 'outubro', 11 => 'novembro', 12 => 'dezembro'
+                1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
+                5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
+                9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro'
             ];
             $mes = (int)$inicio->format('n');
             $ano = $inicio->format('Y');
@@ -193,22 +193,31 @@ function hasInsufficientAdvance($ymd, $isCampeonato = false) {
             ?>
         </div>
 
-        <button type="button" class="btn btn-sm btn-outline-secondary nav-cal" data-mes="<?= $nextMes; ?>">
+        <button type="button" class="btn btn-sm btn-outline-primary nav-cal" data-mes="<?= $nextMes; ?>">
             <i class="bi bi-chevron-right"></i>
         </button>
     </div>
 
     <!-- Cabeçalho com dias da semana -->
-    <div class="calendar-grid text-center fw-semibold text-muted mb-2">
-        <?php foreach (['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'] as $d): ?><div><?= $d ?></div><?php endforeach; ?>
+    <div class="calendar-header-row d-none d-md-flex">
+        <?php foreach (['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'] as $d): ?>
+            <div class="calendar-header-day"><?= $d ?></div>
+        <?php endforeach; ?>
+    </div>
+
+    <!-- Cabeçalho mobile (abreviado) -->
+    <div class="calendar-header-row d-flex d-md-none">
+        <?php foreach (['D','S','T','Q','Q','S','S'] as $d): ?>
+            <div class="calendar-header-day"><?= $d ?></div>
+        <?php endforeach; ?>
     </div>
 
     <!-- Grid principal do calendário -->
-    <div class="calendar-grid">
-        <?php 
+    <div class="calendar-grid-wrapper">
+        <?php
         // Adiciona células vazias antes do primeiro dia do mês
         for ($i=0; $i<$primeiroW; $i++): ?>
-            <div class="calendar-cell"></div>
+            <div class="calendar-day-cell-grid"></div>
         <?php endfor; ?>
         
         <?php 
@@ -237,9 +246,12 @@ function hasInsufficientAdvance($ymd, $isCampeonato = false) {
             if ($isCampeonato) {
                 $p1disabled = $isPastDate;
                 $p2disabled = $isPastDate;
+                $dayDisabled = $isPastDate;
             } else {
                 $p1disabled = $p1busy || $dateInvalid;
                 $p2disabled = $p2busy || $dateInvalid;
+                // Dropdown só desabilitado se a data for inválida, não por períodos ocupados
+                $dayDisabled = $dateInvalid;
             }
             
             // Adiciona classe CSS especial para datas indisponíveis
@@ -247,31 +259,75 @@ function hasInsufficientAdvance($ymd, $isCampeonato = false) {
             if ($isPastDate || $isInsufficientAdvance) {
                 $cellClass = 'past-date';
             }
+
+            // ID único para o dropdown
+            $dropdownId = 'dropdown-' . $ymd;
             ?>
-            <div class="calendar-cell <?= $cellClass ?>">
-                <!-- Linha superior: número do dia + badge de disponibilidade -->
-                <div class="dayline">
-                    <span class="calendar-day"><?= $dia ?></span>
-                    <span class="badge <?= $badge ?>">&nbsp;</span>
+            <div class="calendar-day-cell-grid">
+                <div class="calendar-day-wrapper <?= $cellClass ?>" data-date="<?= $ymd ?>">
+                    <!-- Cabeçalho do dia com número e badge -->
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="calendar-day-number"><?= $dia ?></span>
+                        <span class="badge <?= $badge ?> calendar-badge">&nbsp;</span>
+                    </div>
+
+                    <!-- Botão dropdown para selecionar horário -->
+                    <div class="dropdown w-100">
+                        <button class="btn btn-sm btn-outline-primary w-100 dropdown-toggle calendar-day-btn <?= $dayDisabled ? 'disabled' : '' ?>"
+                                type="button"
+                                id="<?= $dropdownId ?>"
+                                data-bs-toggle="dropdown"
+                                data-date="<?= $ymd ?>"
+                                aria-expanded="false"
+                                <?= $dayDisabled ? 'disabled' : '' ?>>
+                            <small class="d-none d-sm-inline">Horários</small>
+                            <small class="d-inline d-sm-none">Hora</small>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="<?= $dropdownId ?>">
+                            <!-- Período 1 (19:15 - 20:55) -->
+                            <li>
+                                <a class="dropdown-item slot-item <?= $p1disabled ? 'disabled' : '' ?>"
+                                   href="#"
+                                   data-date="<?= $ymd ?>"
+                                   data-periodo="P1"
+                                   <?= $p1disabled ? 'onclick="return false;"' : '' ?>>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>
+                                            <i class="bi bi-clock"></i> 19:15 - 20:55
+                                        </span>
+                                        <?php if ($p1busy): ?>
+                                            <span class="badge bg-danger text-white">Ocupado</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-success text-white">Livre</span>
+                                        <?php endif; ?>
+                                    </div>
+                                </a>
+                            </li>
+
+                            <li><hr class="dropdown-divider"></li>
+
+                            <!-- Período 2 (21:10 - 22:50) -->
+                            <li>
+                                <a class="dropdown-item slot-item <?= $p2disabled ? 'disabled' : '' ?>"
+                                   href="#"
+                                   data-date="<?= $ymd ?>"
+                                   data-periodo="P2"
+                                   <?= $p2disabled ? 'onclick="return false;"' : '' ?>>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>
+                                            <i class="bi bi-clock"></i> 21:10 - 22:50
+                                        </span>
+                                        <?php if ($p2busy): ?>
+                                            <span class="badge bg-danger text-white">Ocupado</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-success text-white">Livre</span>
+                                        <?php endif; ?>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                
-                <!-- Botão do Período 1 (19:15 - 20:55) -->
-                <button type="button" 
-                        class="btn btn-sm slot <?= slotClassCal($p1busy, $dateInvalid, $isPastDate, $isCampeonato) ?>" 
-                        data-date="<?= $ymd ?>" 
-                        data-periodo="P1" 
-                        <?= $p1disabled ? 'disabled' : '' ?>>
-                    19:15 - 20:55
-                </button>
-                
-                <!-- Botão do Período 2 (21:10 - 22:50) -->
-                <button type="button" 
-                        class="btn btn-sm slot <?= slotClassCal($p2busy, $dateInvalid, $isPastDate, $isCampeonato) ?>" 
-                        data-date="<?= $ymd ?>" 
-                        data-periodo="P2" 
-                        <?= $p2disabled ? 'disabled' : '' ?>>
-                    21:10 - 22:50
-                </button>
             </div>
         <?php endfor; ?>
     </div>

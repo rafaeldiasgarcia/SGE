@@ -1,30 +1,20 @@
 /**
  * Calendário Interativo de Agendamentos
- * 
+ * Versão Bootstrap com dropdown de horários
+ *
  * Implementa um calendário dinâmico para seleção de datas e períodos
- * de agendamento da quadra poliesportiva.
- * 
+ * de agendamento da quadra poliesportiva usando dropdowns do Bootstrap.
+ *
  * Funcionalidades:
- * - Seleção visual de data e período (primeiro/segundo)
+ * - Seleção visual de data e período via dropdown
  * - Navegação entre meses via AJAX (sem recarregar página)
- * - Indicadores visuais de disponibilidade:
- *   * Verde: Horário disponível
- *   * Vermelho: Horário ocupado
- *   * Cinza: Data passada (desabilitado)
+ * - Indicadores visuais de disponibilidade
  * - Validação de datas passadas (não permite seleção)
  * - Sincronização com campos hidden do formulário
  * - Feedback visual da seleção atual
- * 
- * Períodos:
- * - Primeiro: 19:15 - 20:55
- * - Segundo: 21:10 - 22:50
- * 
- * Integração:
- * - Endpoint AJAX: /calendario-partial
- * - Campos do formulário: data_agendamento, periodo
- * - Botão de envio habilitado apenas após seleção completa
- * 
- * @version 1.0
+ * - Otimizado para mobile
+ *
+ * @version 2.0 - Bootstrap Dropdown
  */
 document.addEventListener("DOMContentLoaded", () => {
     const calendarContainer = document.getElementById('calendar-wrapper');
@@ -43,22 +33,147 @@ document.addEventListener("DOMContentLoaded", () => {
             salvar.disabled = false;
         }
 
-        // Lógica para os botões de período (slots)
-        document.querySelectorAll('.slot').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (btn.disabled || btn.classList.contains('disabled')) return;
-                
+        // **NOVO: Ajustar posição do dropdown automaticamente baseado na posição**
+        document.querySelectorAll('.calendar-day-btn').forEach(btn => {
+            // Configurar atributos do Bootstrap para controlar o Popper.js
+            btn.setAttribute('data-bs-display', 'static');
+            btn.setAttribute('data-bs-auto-close', 'true');
+
+            btn.addEventListener('show.bs.dropdown', function(e) {
+                const dropdown = this.nextElementSibling; // O dropdown-menu
+                if (!dropdown) return;
+
+                const wrapper = this.closest('.calendar-day-wrapper');
+                if (!wrapper) return;
+
+                const cell = wrapper.closest('.calendar-day-cell-grid');
+                if (!cell) return;
+
+                // Descobrir a posição da célula no grid
+                const gridWrapper = cell.parentElement;
+                const allCells = Array.from(gridWrapper.children);
+                const cellIndex = allCells.indexOf(cell);
+                const dayOfWeek = cellIndex % 7; // 0-6 = domingo a sábado
+
+                // Calcular em qual linha da semana o dia está (0 = primeira semana, etc)
+                const weekRow = Math.floor(cellIndex / 7);
+
+                // Encontrar qual é a última linha que TEM DIAS (células não vazias)
+                let lastRowWithDays = 0;
+                allCells.forEach((c, idx) => {
+                    // Verifica se a célula tem conteúdo (tem um wrapper com data)
+                    const hasContent = c.querySelector('.calendar-day-wrapper[data-date]');
+                    if (hasContent) {
+                        const row = Math.floor(idx / 7);
+                        if (row > lastRowWithDays) {
+                            lastRowWithDays = row;
+                        }
+                    }
+                });
+
+                // Detectar se é mobile/tablet (TODOS até 1024px devem se comportar como mobile)
+                const isMobile = window.innerWidth <= 1024 ||
+                                /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+                // Detectar se está na última linha com dias
+                const isLastRow = weekRow === lastRowWithDays;
+
+                // Detectar se está na penúltima linha com dias
+                const isSecondLastRow = weekRow === (lastRowWithDays - 1);
+
+                // Remover classes e estilos anteriores
+                dropdown.classList.remove('dropdown-menu-end', 'dropdown-menu-start');
+                dropdown.style.removeProperty('left');
+                dropdown.style.removeProperty('right');
+                dropdown.style.removeProperty('top');
+                dropdown.style.removeProperty('bottom');
+                dropdown.style.removeProperty('transform');
+                dropdown.style.removeProperty('marginTop');
+                dropdown.style.removeProperty('marginBottom');
+
+                // TODOS OS DISPOSITIVOS: penúltima e última linha abrem PARA CIMA (comportamento idêntico ao iPhone 14 Pro Max)
+                if (isLastRow || isSecondLastRow) {
+                    dropdown.style.top = 'auto';
+                    dropdown.style.bottom = '100%';
+                    dropdown.style.marginBottom = '8px';
+                    dropdown.setAttribute('data-popper-placement', 'top');
+                } else {
+                    // Outras linhas: abrem PARA BAIXO
+                    dropdown.style.top = '100%';
+                    dropdown.style.bottom = 'auto';
+                    dropdown.style.marginTop = '8px';
+                    dropdown.setAttribute('data-popper-placement', 'bottom');
+                }
+
+                // Aplicar posicionamento horizontal
+                if (isMobile) {
+                    // MOBILE: alinhamento horizontal baseado na posição do dia
+                    if (dayOfWeek <= 2) {
+                        // Primeiros dias (ESQUERDA): dropdown abre para a DIREITA (start)
+                        dropdown.classList.add('dropdown-menu-start');
+                        dropdown.style.left = '0';
+                        dropdown.style.right = 'auto';
+                    } else if (dayOfWeek >= 4) {
+                        // Últimos dias (DIREITA): dropdown abre para a ESQUERDA (end)
+                        dropdown.classList.add('dropdown-menu-end');
+                        dropdown.style.left = 'auto';
+                        dropdown.style.right = '0';
+                    } else {
+                        // Meio: centraliza
+                        dropdown.style.left = '50%';
+                        dropdown.style.right = 'auto';
+                        dropdown.style.transform = 'translateX(-50%)';
+                    }
+                } else {
+                    // DESKTOP: alinhamento horizontal baseado na posição do dia
+                    if (dayOfWeek <= 2) {
+                        dropdown.classList.add('dropdown-menu-start');
+                        dropdown.style.left = '0';
+                        dropdown.style.right = 'auto';
+                    } else if (dayOfWeek >= 4) {
+                        dropdown.classList.add('dropdown-menu-end');
+                        dropdown.style.left = 'auto';
+                        dropdown.style.right = '0';
+                    } else {
+                        // Meio no desktop: centraliza
+                        dropdown.style.left = '50%';
+                        dropdown.style.right = 'auto';
+                        dropdown.style.transform = 'translateX(-50%)';
+                    }
+                }
+            });
+        });
+
+        // Lógica para os itens do dropdown (slots)
+        document.querySelectorAll('.slot-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Verificar se o item está desabilitado
+                if (item.classList.contains('disabled')) {
+                    console.log('Horário desabilitado - não pode selecionar');
+                    return false;
+                }
+
+                // Verificar se tem o atributo onclick="return false"
+                if (item.getAttribute('onclick') === 'return false;') {
+                    console.log('Horário bloqueado - não pode selecionar');
+                    return false;
+                }
+
                 // Verificação adicional no lado do cliente para datas inválidas
-                const dateStr = btn.dataset.date;
+                const dateStr = item.dataset.date;
                 if (dateStr) {
                     const eventDate = new Date(dateStr);
                     const today = new Date();
-                    today.setHours(0, 0, 0, 0); // Zera as horas para comparação precisa
+                    today.setHours(0, 0, 0, 0);
                     eventDate.setHours(0, 0, 0, 0);
                     
                     // Verifica se a data já passou
                     if (eventDate < today) {
-                        return; // Não permite seleção de datas passadas
+                        console.log('Data já passou - não pode selecionar');
+                        return false;
                     }
                     
                     const diffTime = eventDate.getTime() - today.getTime();
@@ -71,42 +186,62 @@ document.addEventListener("DOMContentLoaded", () => {
                                        subtipoEvento && subtipoEvento.value === 'campeonato';
                     
                     // Para campeonatos: SEM NENHUMA restrição de data (exceto datas passadas)
-                    // Para outros eventos: aplicar restrições normais
                     if (!isCampeonato) {
                         if (diffDays < 4) {
-                            return; // Não permite seleção de datas com menos de 4 dias de antecedência
+                            console.log('Antecedência insuficiente - não pode selecionar');
+                            return false;
                         }
                         
                         if (diffDays > 30) {
-                            return; // Não permite seleção de datas com mais de 1 mês de antecedência
+                            console.log('Data muito distante - não pode selecionar');
+                            return false;
                         }
                     }
-                    // Se for campeonato, não aplica NENHUMA restrição de data (exceto datas passadas)
                 }
 
-                document.querySelectorAll('.slot.selected').forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
+                console.log('Horário selecionado com sucesso!');
 
-                if (dataInput) dataInput.value = btn.dataset.date;
-                if (perInput) perInput.value = (btn.dataset.periodo === 'P1' ? 'primeiro' : 'segundo');
+                // Remover seleção anterior
+                document.querySelectorAll('.slot-item.selected').forEach(i => i.classList.remove('selected'));
+                document.querySelectorAll('.calendar-day-btn.selected').forEach(b => b.classList.remove('selected'));
 
+                // Adicionar seleção ao item do dropdown
+                item.classList.add('selected');
+
+                // Adicionar seleção visual ao botão do dia
+                const dayWrapper = item.closest('.calendar-day-wrapper');
+                if (dayWrapper) {
+                    const dayBtn = dayWrapper.querySelector('.calendar-day-btn');
+                    if (dayBtn) {
+                        dayBtn.classList.add('selected');
+                        dayBtn.textContent = item.dataset.periodo === 'P1' ? '19:15' : '21:10';
+                    }
+                }
+
+                // Atualizar campos hidden
+                if (dataInput) dataInput.value = item.dataset.date;
+                if (perInput) perInput.value = (item.dataset.periodo === 'P1' ? 'primeiro' : 'segundo');
+
+                // Atualizar label de horário selecionado
                 if (labelSel) {
-                    const [year, month, day] = btn.dataset.date.split('-');
+                    const [year, month, day] = item.dataset.date.split('-');
                     const dataFormatada = `${day}/${month}/${year}`;
-                    labelSel.textContent = dataFormatada + ' • ' + (btn.dataset.periodo === 'P1' ? '19:15 às 20:55' : '21:10 às 22:50');
+                    labelSel.textContent = dataFormatada + ' • ' +
+                        (item.dataset.periodo === 'P1' ? '19:15 às 20:55' : '21:10 às 22:50');
                 }
 
+                // Habilitar botão de envio
                 if (salvar) salvar.disabled = false;
 
-                // Scroll removido - usuário não quer que a página role automaticamente
+                return false;
             });
         });
 
-        // REQUISITO 2: Lógica para os botões de navegação de mês (AJAX)
+        // Lógica para os botões de navegação de mês (AJAX)
         document.querySelectorAll('.nav-cal').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const mes = btn.dataset.mes;
-                calendarContainer.style.opacity = '0.5'; // Feedback visual de carregamento
+                calendarContainer.style.opacity = '0.5';
 
                 // Verificar se é campeonato para passar o parâmetro correto
                 const tipoField = document.getElementById('tipo_agendamento');
@@ -115,7 +250,6 @@ document.addEventListener("DOMContentLoaded", () => {
                                    subtipoField && subtipoField.value === 'campeonato';
 
                 try {
-                    // O caminho da requisição AJAX agora é absoluto, sem subpastas.
                     const response = await fetch(`/calendario-partial?mes=${mes}&is_campeonato=${isCampeonato}`);
                     const html = await response.text();
                     calendarContainer.innerHTML = html;
@@ -123,7 +257,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     calendarContainer.innerHTML = '<div class="alert alert-danger">Erro ao carregar o calendário.</div>';
                 } finally {
                     calendarContainer.style.opacity = '1';
-                    // Re-inicializa a lógica para o novo HTML que foi carregado
                     initializeCalendarLogic();
                 }
             });
@@ -138,7 +271,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let subtipoEvento = document.getElementById('subtipo_evento');
     
     function updateSlotAvailability() {
-        
         // Re-buscar os campos caso tenham sido criados dinamicamente
         const tipoField = document.getElementById('tipo_agendamento');
         const subtipoField = document.getElementById('subtipo_evento');
@@ -146,14 +278,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const isCampeonato = tipoField && tipoField.value === 'esportivo' && 
                            subtipoField && subtipoField.value === 'campeonato';
         
-        
         if (isCampeonato) {
-            // Para campeonatos: aplicar regras especiais diretamente no calendário atual
             setTimeout(() => {
                 aplicarRegrasCampeonato();
-            }, 100); // Pequeno delay para garantir que o DOM foi atualizado
+            }, 100);
         } else {
-            // Para outros tipos, restaurar comportamento normal
             restaurarRegrasNormais();
         }
     }
@@ -162,11 +291,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const calendarContainer = document.getElementById('calendar-wrapper');
         if (!calendarContainer) return;
         
-        // Obter mês atual do calendário (escopado ao container do calendário)
-        const mesAtual = calendarContainer.querySelector('.fw-semibold')?.textContent;
+        const mesAtual = calendarContainer.querySelector('.fw-bold')?.textContent;
         if (!mesAtual) return;
         
-        // Extrair mês e ano (assumindo formato "janeiro de 2024")
         const partes = mesAtual.split(' de ');
         if (partes.length !== 2) return;
         
@@ -184,7 +311,6 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const mesParam = `${ano}-${mesNumero}`;
         
-        // Recarregar calendário via AJAX
         calendarContainer.style.opacity = '0.5';
         
         fetch(`/calendario-partial?mes=${mesParam}&is_campeonato=false`)
@@ -192,8 +318,6 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(html => {
                 calendarContainer.innerHTML = html;
                 calendarContainer.style.opacity = '1';
-                
-                // Re-inicializar a lógica para o novo HTML
                 initializeCalendarLogic();
             })
             .catch(e => {
@@ -206,11 +330,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const calendarContainer = document.getElementById('calendar-wrapper');
         if (!calendarContainer) return;
         
-        // Obter mês atual do calendário (escopado ao container do calendário)
-        const mesAtual = calendarContainer.querySelector('.fw-semibold')?.textContent;
+        const mesAtual = calendarContainer.querySelector('.fw-bold')?.textContent;
         if (!mesAtual) return;
         
-        // Extrair mês e ano (assumindo formato "janeiro de 2024")
         const partes = mesAtual.split(' de ');
         if (partes.length !== 2) return;
         
@@ -228,7 +350,6 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const mesParam = `${ano}-${mesNumero}`;
         
-        // Recarregar calendário via AJAX
         calendarContainer.style.opacity = '0.5';
         
         fetch(`/calendario-partial?mes=${mesParam}&is_campeonato=true`)
@@ -236,11 +357,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(html => {
                 calendarContainer.innerHTML = html;
                 calendarContainer.style.opacity = '1';
-                
-                // Aplicar regras especiais de campeonato após carregar
                 aplicarRegrasCampeonato();
-                
-                // Re-inicializar a lógica para o novo HTML
                 initializeCalendarLogic();
             })
             .catch(e => {
@@ -260,68 +377,47 @@ document.addEventListener("DOMContentLoaded", () => {
         if (regraAntecedencia) regraAntecedencia.style.display = 'none';
         if (regraCampeonato) regraCampeonato.style.display = 'inline';
         
-        // Aplicar regras para todos os slots
-        document.querySelectorAll('.slot').forEach(btn => {
-            const dateStr = btn.dataset.date;
+        // Aplicar regras para todos os dias
+        document.querySelectorAll('.calendar-day-wrapper').forEach(wrapper => {
+            const dateStr = wrapper.dataset.date;
             if (dateStr) {
                 const eventDate = new Date(dateStr);
                 eventDate.setHours(0, 0, 0, 0);
                 
+                const dayBtn = wrapper.querySelector('.calendar-day-btn');
+                const slotItems = wrapper.querySelectorAll('.slot-item');
+                const badge = wrapper.querySelector('.calendar-badge');
+
                 if (eventDate < today) {
-                    // Para datas passadas: manter cores originais mas desabilitar
-                    btn.disabled = true;
-                    btn.classList.add('disabled');
-                    btn.style.opacity = '0.5';
-                } else {
-                    // Para datas futuras: sempre permitir seleção (mesmo ocupado)
-                    btn.disabled = false;
-                    btn.classList.remove('disabled');
-                    // Forçar visual verde para campeonatos sem alterar classes originais
-                    btn.classList.add('campeonato-forced');
-                    btn.style.backgroundColor = '#198754';
-                    btn.style.color = '#fff';
-                    btn.style.opacity = '1';
-                    // Remover atributo disabled se existir
-                    btn.removeAttribute('disabled');
-                    // Forçar remoção de qualquer classe que impeça clique
-                    btn.style.pointerEvents = 'auto';
-                    btn.style.cursor = 'pointer';
-                }
-            }
-        });
-        
-        // Atualizar badges de disponibilidade - não substituir classes definitivas
-        document.querySelectorAll('.calendar-cell').forEach(cell => {
-            const dateStr = cell.querySelector('.slot')?.dataset.date;
-            if (dateStr) {
-                const eventDate = new Date(dateStr);
-                eventDate.setHours(0, 0, 0, 0);
-                
-                const badge = cell.querySelector('.badge');
-                if (badge) {
-                    if (eventDate < today) {
-                        // Para datas passadas, manter cores originais mas com overlay
-                        badge.style.opacity = '0.5';
-                    } else {
-                        // Para datas futuras, forçar visual verde temporário
-                        badge.classList.add('campeonato-forced');
-                        badge.style.backgroundColor = '#198754';
-                        badge.style.color = '#fff';
-                        badge.style.opacity = '1';
+                    // Datas passadas: manter desabilitado
+                    if (dayBtn) {
+                        dayBtn.disabled = true;
+                        dayBtn.classList.add('disabled');
                     }
-                }
-                
-                // Remover classe past-date para datas futuras em campeonatos
-                if (eventDate >= today) {
-                    cell.classList.remove('past-date');
-                    // Limpar estilos CSS que podem estar aplicados
-                    cell.style.opacity = '';
-                    cell.style.filter = '';
-                    cell.style.pointerEvents = '';
+                } else {
+                    // Datas futuras: sempre permitir
+                    if (dayBtn) {
+                        dayBtn.disabled = false;
+                        dayBtn.classList.remove('disabled');
+                        dayBtn.classList.add('campeonato-forced');
+                    }
+
+                    // Habilitar todos os slots
+                    slotItems.forEach(item => {
+                        item.classList.remove('disabled');
+                        item.removeAttribute('aria-disabled');
+                    });
+
+                    // Forçar badge verde
+                    if (badge) {
+                        badge.className = 'badge bg-success calendar-badge';
+                    }
+
+                    // Remover classe past-date
+                    wrapper.classList.remove('past-date');
                 }
             }
         });
-        
     }
     
     function restaurarRegrasNormais() {
@@ -332,101 +428,29 @@ document.addEventListener("DOMContentLoaded", () => {
         if (regraAntecedencia) regraAntecedencia.style.display = 'inline';
         if (regraCampeonato) regraCampeonato.style.display = 'none';
         
-        // Limpar estilos e classes temporárias aplicadas pelos campeonatos
-        document.querySelectorAll('.slot').forEach(btn => {
-            btn.style.opacity = '';
-            btn.style.backgroundColor = '';
-            btn.style.color = '';
-            btn.style.pointerEvents = '';
-            btn.style.cursor = '';
+        // Limpar classes temporárias
+        document.querySelectorAll('.calendar-day-btn').forEach(btn => {
             btn.classList.remove('campeonato-forced');
-            // Não remover o disabled aqui, pois pode ser necessário para slots ocupados
-        });
-        
-        document.querySelectorAll('.badge').forEach(badge => {
-            badge.style.opacity = '';
-            badge.style.backgroundColor = '';
-            badge.style.color = '';
-            badge.classList.remove('campeonato-forced');
         });
 
-        // Aplicar imediatamente a regra visual de antecedência padrão (fallback instantâneo)
-        try {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            document.querySelectorAll('.calendar-cell').forEach(cell => {
-                const slot = cell.querySelector('.slot');
-                const badge = cell.querySelector('.badge');
-                const dateStr = slot?.dataset.date;
-                if (!dateStr) return;
-                const eventDate = new Date(dateStr);
-                eventDate.setHours(0, 0, 0, 0);
-
-                const diffTime = eventDate.getTime() - today.getTime();
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                const isPast = eventDate < today;
-                const insufficientAdvance = (!isPast && (diffDays < 4 || diffDays > 30));
-
-                if (isPast || insufficientAdvance) {
-                    cell.classList.add('past-date');
-                    if (badge) badge.style.opacity = '0.5';
-                    cell.querySelectorAll('.slot').forEach(b => {
-                        b.setAttribute('disabled', 'disabled');
-                        b.classList.add('disabled');
-                        b.style.backgroundColor = ''; // deixa classes do servidor determinarem a cor
-                        b.style.color = '';
-                    });
-                }
-            });
-        } catch (_) {}
-        
-        // Recarregar o calendário para restaurar o comportamento normal
+        // Recarregar calendário para restaurar estado normal
         recarregarCalendarioNormal();
     }
     
     if (tipoAgendamento) {
         tipoAgendamento.addEventListener('change', function() {
-            // Aguardar um pouco para o campo subtipo aparecer
             setTimeout(() => {
                 updateSlotAvailability();
             }, 100);
         });
     }
 
-    // Listener imediato para o subtipo se já estiver presente no DOM
     if (subtipoEvento) {
         subtipoEvento.addEventListener('change', function() {
             updateSlotAvailability();
         });
     }
     
-    // Usar MutationObserver para detectar quando o campo subtipo aparece
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                const target = mutation.target;
-                if (target.id === 'subtipo_wrapper' && target.style.display !== 'none') {
-                    const subtipoField = document.getElementById('subtipo_evento');
-                    if (subtipoField) {
-                        subtipoField.addEventListener('change', function() {
-                            updateSlotAvailability();
-                        });
-                    }
-                }
-            }
-        });
-    });
-    
-    // Observar mudanças no wrapper do subtipo
-    const subtipoWrapper = document.getElementById('subtipo_wrapper');
-    if (subtipoWrapper) {
-        observer.observe(subtipoWrapper, { attributes: true });
-    }
-    
-    // Executar na carga inicial para aplicar regras corretas
-    updateSlotAvailability();
-    
-    // Tornar a função global para ser chamada de outros scripts
+    // Expor função para uso externo
     window.updateSlotAvailability = updateSlotAvailability;
-    
 });

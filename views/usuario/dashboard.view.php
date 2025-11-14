@@ -50,7 +50,7 @@
       <?php if ($role === 'admin' || $role === 'superadmin' || $is_coordenador == 1): ?>
       <div class="col-12 col-md-6 col-xl-3">
         <div class="card h-100 shadow-sm border-0">
-          <div class="card-body d-flex flex-column">
+          <div class="card-body d-flex flex-column shadow-lg rounded card-config border-1">
             <h5 class="card-title d-flex align-items-center gap-2 mb-2">
               <i class="bi bi-calendar-plus text-warning"></i>
               Solicitar Agendamento
@@ -66,7 +66,7 @@
       <?php if ($role === 'admin' || $role === 'superadmin' || $is_coordenador == 1): ?>
       <div class="col-12 col-md-6 col-xl-3">
         <div class="card h-100 shadow-sm border-0">
-          <div class="card-body d-flex flex-column">
+          <div class="card-body d-flex flex-column shadow-lg rounded card-config border-1">
             <h5 class="card-title d-flex align-items-center gap-2 mb-2">
               <i class="bi bi-journal-text text-success"></i>
               Meus Agendamentos
@@ -83,7 +83,7 @@
         <?php $atleticaId = $_SESSION['atletica_id'] ?? null; ?>
         <div class="col-12 col-md-6 col-xl-3">
           <div class="card h-100 shadow-sm border-0">
-            <div class="card-body d-flex flex-column">
+            <div class="card-body d-flex flex-column shadow-lg rounded card-config border-1">
               <?php if ($atleticaId): ?>
                 <h5 class="card-title d-flex align-items-center gap-2 mb-2">
                   <i class="bi bi-people-fill text-info"></i>

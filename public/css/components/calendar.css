@@ -1,121 +1,618 @@
 /*
  * Estilos específicos para o componente de calendário interativo
  * usado na página de agendamento de eventos.
+ * Versão Bootstrap com dropdown de horários - Ultra Compacto para Mobile
  */
 
-/* ===== Calendário ===== */
-/**
- * CALENDAR.CSS
- * Estilos do calendário interativo de agendamentos.
- * Inclui: grid de dias, slots de período, badges de disponibilidade, navegação.
- */
+/* ===== Cabeçalho do Calendário ===== */
+.calendar-title {
+    font-size: 1.1rem;
+}
 
-.calendar-grid {
+.calendar-subtitle {
+    font-size: 0.85rem;
+}
+
+.calendar-subtitle-campeonato {
+    display: none;
+}
+
+/* ===== Legenda ===== */
+.calendar-legend {
+    font-size: 0.75rem;
+}
+
+.legend-badge {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    border-radius: 50%;
+    vertical-align: middle;
+    line-height: 14px;
+    font-size: 0;
+}
+
+/* ===== Container do Calendário ===== */
+#cal {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* ===== Navegação do Mês ===== */
+.calendar-month-year {
+    font-size: 0.95rem;
+}
+
+.nav-cal {
+    min-width: 35px;
+    padding: 0.25rem 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.nav-cal:hover {
+    transform: scale(1.05);
+}
+
+/* ===== Cabeçalho dos Dias da Semana (Flexbox) ===== */
+.calendar-header-row {
+    display: flex;
+    width: 100%;
+    margin-bottom: 0.25rem;
+    gap: 0.15rem;
+}
+
+.calendar-header-day {
+    flex: 1;
+    text-align: center;
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 0.75rem;
+    padding: 0.25rem 0;
+}
+
+/* ===== Grid do Calendário (CSS Grid para alinhamento perfeito) ===== */
+.calendar-grid-wrapper {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: .4rem;
+    gap: 0.15rem;
+    width: 100%;
 }
 
-.calendar-cell {
+/* ===== Células do Calendário ===== */
+.calendar-day-cell-grid {
+    min-height: 95px;
+    padding: 0;
+    width: 100%;
+}
+
+.calendar-day-wrapper {
     background: #fff;
     border: 1px solid #e9ecef;
-    border-radius: 10px;
-    padding: 6px;
-    min-height: 100px;
+    border-radius: 6px;
+    padding: 8px;
+    height: 100%;
+    min-height: 90px;
     display: flex;
     flex-direction: column;
-    font-size: .85rem; /* reduz tipografia */
+    transition: all 0.2s ease;
+    box-sizing: border-box;
 }
 
-.dayline {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: .25rem;
+.calendar-day-wrapper:hover:not(.past-date) {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
 }
 
-.calendar-day {
+/* ===== Número do Dia ===== */
+.calendar-day-number {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #212529;
+    line-height: 1;
+}
+
+/* ===== Badge de Disponibilidade ===== */
+.calendar-badge {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    padding: 0;
+    display: inline-block;
+    flex-shrink: 0;
+    min-width: 12px;
+    min-height: 12px;
+}
+
+/* Garantir que badges do Bootstrap funcionem */
+.calendar-badge.bg-success,
+.calendar-badge.bg-warning,
+.calendar-badge.bg-danger,
+.calendar-badge.bg-light {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.calendar-badge.bg-light {
+    background-color: #e9ecef !important;
+}
+
+/* ===== Botão de Horários (Dropdown) ===== */
+.calendar-day-btn {
+    margin-top: auto;
+    font-size: 0.8rem;
+    padding: 6px 8px;
+    border-radius: 4px;
     font-weight: 600;
-    font-size: .9rem;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    line-height: 1.3;
+    min-height: 32px;
 }
 
-.slot {
-    display: block;
-    width: 100%;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: .8rem;
-    padding: 2px 0;
-    margin-bottom: 3px;
+.calendar-day-btn:not(.disabled):hover {
+    background-color: #0d6efd;
+    color: #fff;
+    border-color: #0d6efd;
 }
 
-.slot.disabled,
-.slot:disabled {
-    pointer-events: none;
-    opacity: .6;
+.calendar-day-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-.slot.selected {
-    background-color: #0d6efd !important;
+.calendar-day-btn.selected {
+    background-color: #198754 !important;
     color: #fff !important;
-    border: 1px solid #0a58ca !important;
+    border-color: #198754 !important;
 }
 
-/* Estilo para dias que já passaram */
-.calendar-cell.past-date {
-    opacity: 0.9;
-    pointer-events: none;
-    filter: brightness(0.95) saturate(0.8);
+/* ===== Dropdown Menu ===== */
+.calendar-day-wrapper .dropdown-menu {
+    min-width: 190px;
+    padding: 0.5rem 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-size: 0.85rem;
+    z-index: 1050 !important;
+    position: absolute !important;
+    /* Desabilitar transições que causam o "salto" visual */
+    transition: none !important;
+}
+
+/* Forçar posicionamento em TODOS os dispositivos (comportamento unificado igual ao iPhone 14 Pro Max) */
+.calendar-day-wrapper .dropdown-menu {
+    transform: none !important;
+    will-change: auto !important;
+    inset: auto !important;
+}
+
+.calendar-day-wrapper .dropdown-menu[data-popper-placement] {
+    transform: none !important;
+}
+
+/* Forçar centralização dos dias do meio sem transição */
+.calendar-day-wrapper .dropdown-menu[style*="translateX(-50%)"] {
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+}
+
+/* TODOS OS DISPOSITIVOS: dropdowns com data-popper-placement="top" abrem para CIMA (última e penúltima linha) */
+.calendar-day-wrapper .dropdown-menu[data-popper-placement="top"] {
+    bottom: 100% !important;
+    top: auto !important;
+    margin-bottom: 8px !important;
+    margin-top: 0 !important;
+}
+
+/* TODOS OS DISPOSITIVOS: dropdowns com data-popper-placement="bottom" abrem para BAIXO (outras linhas) */
+.calendar-day-wrapper .dropdown-menu[data-popper-placement="bottom"] {
+    top: 100% !important;
+    bottom: auto !important;
+    margin-top: 8px !important;
+    margin-bottom: 0 !important;
+}
+
+/* Posicionamento horizontal baseado na posição do dia */
+.calendar-day-wrapper .dropdown-menu.dropdown-menu-start {
+    left: 0 !important;
+    right: auto !important;
+}
+
+.calendar-day-wrapper .dropdown-menu.dropdown-menu-end {
+    left: auto !important;
+    right: 0 !important;
+}
+
+/* Garantir que o dropdown possa abrir para cima ou para baixo SEM sobrepor o botão */
+.calendar-day-wrapper .dropdown-menu[style*="bottom: 100%"],
+.calendar-day-wrapper .dropdown-menu[data-popper-placement="top"] {
+    bottom: 100% !important;
+    top: auto !important;
+    margin-bottom: 8px !important;
+    margin-top: 0 !important;
+}
+
+/* Garantir que dropdowns para baixo também tenham espaçamento */
+.calendar-day-wrapper .dropdown-menu[style*="top: 100%"],
+.calendar-day-wrapper .dropdown-menu[data-popper-placement="bottom"] {
+    top: 100% !important;
+    bottom: auto !important;
+    margin-top: 8px !important;
+    margin-bottom: 0 !important;
+}
+
+.calendar-day-wrapper .dropdown {
+    position: relative;
+    z-index: auto;
+}
+
+/* Quando o dropdown está aberto, aumentar z-index do wrapper */
+.calendar-day-wrapper:has(.dropdown-toggle[aria-expanded="true"]) {
+    z-index: 1040;
     position: relative;
 }
 
-.calendar-cell.past-date::after {
+.slot-item {
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.slot-item:not(.disabled):hover {
+    background-color: #f8f9fa;
+}
+
+.slot-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    background-color: #f8f9fa;
+}
+
+.slot-item.disabled:hover {
+    background-color: #f9f9fa !important;
+}
+
+.slot-item.selected {
+    background-color: #e7f5ff;
+    font-weight: 600;
+}
+
+.slot-item i {
+    font-size: 0.85rem;
+}
+
+/* Garantir que badges dentro do dropdown sejam visíveis */
+.slot-item .badge {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    font-weight: 600;
+}
+
+/* ===== Datas Passadas/Inválidas ===== */
+.calendar-day-wrapper.past-date {
+    opacity: 0.7;
+    background-color: #f8f9fa;
+    position: relative;
+}
+
+.calendar-day-wrapper.past-date::after {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(100, 100, 100, 0.05);
-    border-radius: 10px;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(0, 0, 0, 0.02) 10px,
+        rgba(0, 0, 0, 0.02) 20px
+    );
+    border-radius: 6px;
     pointer-events: none;
 }
 
-.calendar-cell.past-date .calendar-day {
-    color: hwb(210 29% 66%);
-    position: relative;
-    z-index: 1;
+.calendar-day-wrapper.past-date .calendar-day-number {
+    color: #6c757d;
 }
 
-.calendar-cell.past-date .badge {
-    position: relative;
-    z-index: 1;
-}
-
-.calendar-cell.past-date .slot {
+.calendar-day-wrapper.past-date .calendar-day-btn {
     cursor: not-allowed;
-    position: relative;
-    z-index: 1;
 }
 
-
-/* Responsividade */
-@media (max-width: 992px) {
-    .calendar-cell {
-        min-height: 90px;
-        font-size: .8rem;
-    }
-    .slot { font-size: .75rem; }
-}
-
-@media (max-width: 576px) {
-    .calendar-cell {
+/* ===== Responsividade: Tablets (iPad) ===== */
+@media (max-width: 1024px) {
+    .calendar-day-cell-grid {
         min-height: 80px;
-        padding: 4px;
-        font-size: .75rem;
     }
-    .slot {
-        font-size: .7rem;
-        border-radius: 6px;
+
+    .calendar-day-wrapper {
+        min-height: 75px;
+        padding: 6px;
     }
+
+    .calendar-day-number {
+        font-size: 0.8rem;
+    }
+
+    .calendar-day-btn {
+        font-size: 0.6rem;
+        padding: 3px 4px;
+    }
+
+    .calendar-badge {
+        width: 8px;
+        height: 8px;
+    }
+
+    .calendar-grid-wrapper {
+        gap: 0.12rem;
+    }
+
+    .calendar-header-row {
+        gap: 0.12rem;
+    }
+
+    .calendar-header-day {
+        font-size: 0.72rem;
+    }
+}
+
+/* ===== Responsividade: Tablets Pequenos ===== */
+@media (max-width: 768px) {
+    #cal {
+        padding: 0.5rem !important;
+    }
+
+    .calendar-day-cell-grid {
+        min-height: 58px;
+    }
+
+    .calendar-day-wrapper {
+        min-height: 53px;
+        padding: 3px;
+        border-radius: 5px;
+    }
+
+    .calendar-day-number {
+        font-size: 0.7rem;
+    }
+
+    .calendar-badge {
+        width: 6px;
+        height: 6px;
+    }
+
+    .calendar-day-btn {
+        font-size: 0.5rem;
+        padding: 1px 2px;
+    }
+
+    .calendar-grid-wrapper {
+        gap: 0.1rem;
+    }
+
+    .calendar-header-row {
+        gap: 0.1rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .calendar-header-day {
+        font-size: 0.65rem;
+        padding: 0.2rem 0;
+    }
+}
+
+/* ===== Responsividade: Mobile (iPhone, Android) ===== */
+@media (max-width: 576px) {
+    .calendar-title {
+        font-size: 1rem;
+    }
+
+    .calendar-title i {
+        font-size: 0.9rem;
+    }
+
+    #cal {
+        padding: 0.4rem !important;
+    }
+
+    .calendar-day-cell-grid {
+        min-height: 54px;
+    }
+
+    .calendar-day-wrapper {
+        min-height: 49px;
+        padding: 2px;
+        border-radius: 4px;
+    }
+
+    .calendar-day-number {
+        font-size: 0.65rem;
+    }
+
+    .calendar-badge {
+        width: 6px;
+        height: 6px;
+    }
+
+    .calendar-day-btn {
+        font-size: 0.48rem;
+        padding: 1px 2px;
+        border-radius: 3px;
+    }
+
+    .calendar-day-wrapper .dropdown-menu {
+        min-width: 170px;
+        font-size: 0.8rem;
+    }
+
+    .slot-item {
+        padding: 0.4rem 0.6rem;
+    }
+
+    .slot-item .badge {
+        font-size: 0.6rem;
+        padding: 1px 3px;
+    }
+
+    .slot-item i {
+        font-size: 0.75rem;
+    }
+
+    .calendar-grid-wrapper {
+        gap: 0.08rem;
+    }
+
+    .calendar-header-row {
+        gap: 0.08rem;
+        margin-bottom: 0.15rem;
+    }
+
+    .calendar-header-day {
+        font-size: 0.6rem;
+        padding: 0.15rem 0;
+    }
+
+    .nav-cal {
+        font-size: 0.8rem;
+        min-width: 32px;
+        padding: 0.2rem 0.4rem;
+    }
+
+    .calendar-month-year {
+        font-size: 0.85rem;
+    }
+}
+
+/* ===== Responsividade: Mobile Pequeno (iPhone SE, etc) ===== */
+@media (max-width: 400px) {
+    #cal {
+        padding: 0.3rem !important;
+    }
+
+    .calendar-day-cell-grid {
+        min-height: 50px;
+    }
+
+    .calendar-day-wrapper {
+        min-height: 45px;
+        padding: 2px;
+        border-radius: 3px;
+    }
+
+    .calendar-day-number {
+        font-size: 0.6rem;
+    }
+
+    .calendar-badge {
+        width: 5px;
+        height: 5px;
+    }
+
+    .calendar-day-btn {
+        font-size: 0.45rem;
+        padding: 1px 1px;
+    }
+
+    .calendar-day-wrapper .dropdown-menu {
+        min-width: 160px;
+        font-size: 0.75rem;
+    }
+
+    .calendar-grid-wrapper {
+        gap: 0.06rem;
+    }
+
+    .calendar-header-row {
+        gap: 0.06rem;
+        margin-bottom: 0.1rem;
+    }
+
+    .calendar-header-day {
+        font-size: 0.55rem;
+        padding: 0.1rem 0;
+    }
+
+    .calendar-month-year {
+        font-size: 0.8rem;
+    }
+}
+
+/* ===== Estados Especiais ===== */
+.calendar-day-btn.campeonato-forced {
+    background-color: #198754 !important;
+    color: #fff !important;
+    border-color: #198754 !important;
+}
+
+/* ===== Animações ===== */
+@keyframes pulseGreen {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 4px rgba(25, 135, 84, 0);
+    }
+}
+
+.calendar-day-btn.selected {
+    animation: pulseGreen 2s infinite;
+}
+
+/* ===== Acessibilidade ===== */
+.calendar-day-btn:focus-visible {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+}
+
+.slot-item:focus-visible {
+    outline: 2px solid #0d6efd;
+    outline-offset: -2px;
+}
+
+/* ===== Dropdown aberto em mobile ===== */
+@media (max-width: 1024px) {
+    .calendar-day-wrapper .dropdown-menu {
+        /* Não forçar alinhamento específico - deixar o JS decidir baseado na posição */
+    }
+}
+
+/* ===== Ajustes específicos para landscape mobile ===== */
+@media (max-width: 932px) and (orientation: landscape) {
+    .calendar-day-cell-grid {
+        min-height: 45px;
+    }
+
+    .calendar-day-wrapper {
+        min-height: 40px;
+        padding: 2px;
+    }
+
+    .calendar-day-number {
+        font-size: 0.6rem;
+    }
+
+    .calendar-day-btn {
+        font-size: 0.45rem;
+        padding: 1px 2px;
+    }
+
+    .calendar-badge {
+        width: 5px;
+        height: 5px;
+    }
+}
+
+/* ===== Forçar container a não vazar ===== */
+.card-body #cal,
+.container #cal,
+.container-fluid #cal {
+    max-width: 100%;
+    overflow-x: hidden;
 }

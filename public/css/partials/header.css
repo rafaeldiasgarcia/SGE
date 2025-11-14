@@ -227,20 +227,62 @@
     transform: none;
   }
   
-  .notifications .dropdown-menu,
-  .user-menu-item .dropdown-menu {
-    right: auto;
-    left: 0;
-    transform: none;
-    margin-top: 0;
-    position: static;
-    opacity: 1;
-    visibility: visible;
+  /* Dropdowns abrem DENTRO do menu sanduíche no mobile */
+  .navbar-collapse .notifications .dropdown-menu,
+  .navbar-collapse .user-menu-item .dropdown-menu {
+    position: static !important;
+    float: none !important;
+    width: 100% !important;
+    margin-top: 0 !important;
+    margin-bottom: 0.5rem !important;
+    background-color: #f8f9fa !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    max-width: 100% !important;
+    min-width: auto !important;
+  }
+
+  /* Estilo dos itens dentro do dropdown no mobile */
+  .navbar-collapse .dropdown-menu .dropdown-item {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #e9ecef;
+    background-color: white;
   }
   
-  .nav-link:hover {
-    transform: none;
+  .navbar-collapse .dropdown-menu .dropdown-item:last-child {
+    border-bottom: none;
   }
+
+  .navbar-collapse .dropdown-menu .dropdown-item:hover,
+  .navbar-collapse .dropdown-menu .dropdown-item:active {
+    background-color: #f8f9fa !important;
+  }
+
+  /* Header do dropdown de notificações */
+  .navbar-collapse .dropdown-menu .dropdown-header {
+    background-color: white;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  /* Lista de notificações dentro do menu */
+  .navbar-collapse #notification-list {
+    max-height: 300px !important;
+    overflow-y: auto !important;
+    background-color: white;
+  }
+
   /* Remover animações/realces azuis no mobile */
   .navbar-collapse .nav-link,
   .navbar-collapse .dropdown-item {
@@ -269,11 +311,11 @@
   
   /* Menu mobile compacto no canto superior direito */
   .navbar-collapse {
-    position: absolute !important; /* Necessário para sobrescrever Bootstrap */
+    position: absolute !important;
     top: 100%;
     right: 15px;
-    left: auto !important; /* Necessário para sobrescrever Bootstrap */
-    width: auto !important; /* Necessário para sobrescrever Bootstrap */
+    left: auto !important;
+    width: auto !important;
     min-width: 200px;
     max-width: 300px;
     background: white;
@@ -283,7 +325,7 @@
     z-index: 10004;
     padding: 0.5rem 0;
   }
-  
+
   .navbar-collapse.show {
     display: block;
   }
@@ -303,20 +345,25 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    flex-direction: column; /* texto abaixo do ícone */
-    justify-content: center;
+    flex-direction: row;
+    justify-content: flex-start;
   }
 
-  /* Mover o caret (setinha) para a esquerda no mobile */
-  .navbar-collapse .nav-link.dropdown-toggle {
-    padding-left: 2rem;
-    position: relative;
+  .navbar-collapse .nav-link i {
+    font-size: 1.1rem;
+    min-width: 24px;
+    text-align: center;
   }
+
+  .navbar-collapse .nav-link span {
+    display: inline-block !important;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  /* Remover caret dos dropdowns no mobile */
   .navbar-collapse .nav-link.dropdown-toggle::after {
-    position: absolute;
-    left: 0.75rem;
-    right: auto;
-    margin-left: 0;
+    display: none;
   }
   
   .navbar-collapse .nav-link:last-child {
@@ -338,74 +385,110 @@
   .navbar-collapse .nav-link i::before {
     font-weight: 200 !important;
   }
-  
-  .navbar-collapse .nav-link span {
-    display: block;
-    font-size: 0.9rem;
-    font-weight: 500;
-    margin-left: 0 !important; /* evitar empurrar para o lado em mobile */
-    margin-top: 0.15rem;
-  }
-  
-  /* Dropdowns dentro do menu mobile - abrem para a esquerda */
-  .navbar-collapse .dropdown-menu {
-    position: static;
-    float: none;
-    width: 100%;
-    margin-top: 0;
-    background-color: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    transform: none;
-    z-index: auto;
-  }
-  
-  /* Submenus do perfil e notificações abrem para a esquerda no mobile */
-  .navbar-collapse .notifications .dropdown-menu,
-  .navbar-collapse .user-menu-item .dropdown-menu {
-    position: absolute;
-    right: 100%;
-    left: auto;
-    top: 0;
-    width: clamp(240px, 80vw, 360px);
-    min-width: 0;
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    padding: 0.5rem 0;
-    transform: translateX(-8px);
-    z-index: 10005;
-    box-sizing: border-box;
+}
+
+/* ====== MOBILE ADJUSTMENTS ====== */
+@media (max-width: 991.98px) {
+
+  /* Desativar todos os efeitos de hover no mobile */
+  .nav-link:hover {
+    transform: none !important;
+    color: inherit !important;
   }
 
-  /* Ajustar tamanho para caber na viewport e permitir scroll */
-  .navbar-collapse .notifications .dropdown-menu {
-    max-height: calc(100vh - 120px);
-    overflow-y: auto;
-  }
-  /* Lista interna de notificações: usar altura baseada na viewport */
-  .navbar-collapse #notification-list {
-    max-height: calc(100vh - 180px) !important;
-    overflow-y: auto;
-    overscroll-behavior: contain;
+  .nav-link:hover i {
+    transform: none !important;
   }
 
-  /* Itens de notificação: evitar estouro horizontal */
-  .navbar-collapse #notification-list .notification-item {
-    box-sizing: border-box;
-    max-width: 100%;
+  .notifications .nav-link:hover i {
+    animation: none !important;
   }
-  
-  .navbar-collapse .dropdown-item {
-    padding: 0.5rem 1rem 0.5rem 2rem;
-    font-size: 0.85rem;
-    border-bottom: 1px solid #f8f9fa;
+
+  .navbar:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
   }
-  
-  .navbar-collapse .dropdown-item:last-child {
+
+  /* Desativar tooltips no mobile */
+  .tooltip {
+    display: none !important;
+  }
+
+  /* Reduzir padding dos nav-links no mobile */
+  .nav-link {
+    padding: 0.5rem 1rem !important;
+  }
+
+  /* Melhorar espaçamento dos ícones no mobile */
+  .nav-link i {
+    font-size: 1.25rem !important;
+  }
+
+  /* Navbar mais compacta no mobile */
+  .navbar {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  /* Logo menor no mobile */
+  .logo-header {
+    height: 40px !important;
+  }
+
+  /* Remover animações de dropdown no mobile */
+  .dropdown-menu {
+    animation: none !important;
+  }
+
+  /* Garantir que o menu collapsed não fique muito grosso */
+  .navbar-collapse {
+    max-height: calc(100vh - 70px);
+    overflow-y: auto;
+  }
+
+  /* Melhorar aparência dos itens no menu mobile */
+  .navbar-nav .nav-item {
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .navbar-nav .nav-item:last-child {
     border-bottom: none;
+  }
+
+  /* Ajustar animações de pulso no mobile */
+  .notifications .nav-link i.has-notifications {
+    animation: gentlePulseMobile 3s infinite;
+  }
+
+  @keyframes gentlePulseMobile {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.01);
+    }
   }
 }
 
+/* Ajustes específicos para telas muito pequenas */
+@media (max-width: 575.98px) {
+  .navbar {
+    padding-top: 0.4rem !important;
+    padding-bottom: 0.4rem !important;
+  }
+
+  .logo-header {
+    height: 35px !important;
+  }
+
+  .nav-link i {
+    font-size: 1.1rem !important;
+  }
+
+  /* Menu sanduíche ocupando mais espaço em telas pequenas */
+  .navbar-collapse {
+    right: 10px;
+    max-width: calc(100vw - 20px);
+  }
+}

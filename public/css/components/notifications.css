@@ -178,3 +178,90 @@
     border-left-color: #F28100;
   }
 }
+
+/* ====== MOBILE OPTIMIZATIONS ====== */
+@media (max-width: 991.98px) {
+  /* Desativar hover em itens de notificação no mobile */
+  .notification-item:hover {
+    background-color: transparent;
+  }
+
+  .notification-item:active {
+    background-color: #f8f9fa;
+  }
+
+  /* Notificações dentro do menu sanduíche - sem posicionamento fixo */
+  .navbar-collapse #notification-menu {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: auto !important;
+    margin: 0 !important;
+    transform: none !important;
+    background-color: #f8f9fa !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Lista de notificações com altura adequada dentro do menu */
+  .navbar-collapse #notification-list {
+    max-height: 300px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    background-color: white !important;
+  }
+
+  /* Itens de notificação mais compactos no mobile */
+  .navbar-collapse .notification-item {
+    padding: 10px 12px;
+  }
+
+  .navbar-collapse .notification-item h6 {
+    font-size: 0.85rem;
+  }
+
+  .navbar-collapse .notification-item p {
+    font-size: 0.8rem;
+  }
+
+  .navbar-collapse .notification-item small {
+    font-size: 0.7rem;
+  }
+
+  /* Header de notificações dentro do menu */
+  .navbar-collapse #notification-menu .dropdown-header {
+    background-color: white;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #e9ecef;
+    margin: 0;
+  }
+
+  /* Desativar animação de pulso muito forte no mobile */
+  .notification-indicator {
+    animation: pulseMobile 3s infinite;
+  }
+
+  @keyframes pulseMobile {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 0.8;
+    }
+  }
+}
+
+/* Telas muito pequenas */
+@media (max-width: 575.98px) {
+  .navbar-collapse #notification-list {
+    max-height: 250px !important;
+  }
+
+  .navbar-collapse .notification-item {
+    padding: 8px 10px;
+  }
+}
