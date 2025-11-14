@@ -37,4 +37,4 @@ services:
       PMA_USER: root
       PMA_PASSWORD: rootpass
     depends_on:
-      - db
+      - db 

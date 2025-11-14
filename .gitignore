@@ -63,4 +63,4 @@ database.local.php
 
 # Arquivos de Debug (gerados em desenvolvimento)
 xdebug.log
-debug.log
+debug.log 

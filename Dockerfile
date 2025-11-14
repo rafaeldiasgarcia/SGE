@@ -25,4 +25,4 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 COPY . .
 
 # Set proper permissions
-RUN chown -R www-data:www-data /var/www/html
+RUN chown -R www-data:www-data /var/www/html 

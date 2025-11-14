@@ -179,4 +179,4 @@ ports:
 1. Verifique os logs: `docker logs php`
 2. Reinicie os containers: `docker-compose restart`
 3. Reconstrua a imagem: `docker-compose up -d --build`
-4. Consulte as [Issues no GitHub](https://github.com/seu-usuario/sge/issues)
+4. Consulte as [Issues no GitHub](https://github.com/seu-usuario/sge/issues) 
